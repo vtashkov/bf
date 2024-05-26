@@ -44,4 +44,5 @@ The goal is to minimize the errors that `bf` produces and try to be as forgiving
 ## About me
 
 Written by Victor Tashkov <vtashkov@gmail.com>
+
 Published with MIT License.
