@@ -43,7 +43,7 @@ The goal is to minimize the errors that `bf` produces and try to be as forgiving
 
 ## Examples
 
-Example programs in Brainfuck language can be found in /examples directory.
+Example programs in Brainfuck language can be found in [/examples](https://github.com/vtashkov/bf/tree/master/examples) directory.
 
 `hello_world` and `rot13` are taken from the wiki page of the language: [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck)
 
