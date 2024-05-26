@@ -6,9 +6,9 @@
 and an executable `bf` that provides a command-line interface for executing 
 Brainfuck programs.
 
-## The Language Brainfuck
+## The language Brainfuck
 
-(The following is taken from the the wiki page of the language: [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck) )
+The following is taken from the the wiki page of the language: [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck)
 
 Brainfuck is an esoteric programming language created in 1993 by Urban Müller. 
 Notable for its extreme minimalism, the language consists of only eight simple commands, a data pointer and an instruction pointer. 
@@ -40,6 +40,12 @@ The eight language commands each consist of a single character:
 - If a program contains one or more unbalanced brackets, then the interpreter returns an error and does not execute the program at all.
 
 The goal is to minimize the errors that `bf` produces and try to be as forgiving as possible.
+
+## Examples
+
+Example programs in Brainfuck language can be found in /examples directory.
+
+`hello_world` and `rot13` are taken from the wiki page of the language: [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck)
 
 ## About me
 
