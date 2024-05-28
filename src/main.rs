@@ -19,7 +19,7 @@ fn parse_cmd_arguments() -> Result<String, String> {
 fn read_file_contents(input_file_path: &str) -> Result<String, String> {
     fs::read_to_string(input_file_path).map_err(|error| match error.kind() {
         io::ErrorKind::NotFound => format!("no such file: '{input_file_path}'"),
-        _ => error.to_string()
+        _ => error.to_string(),
     })
 }
 
