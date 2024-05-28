@@ -1,11 +1,10 @@
-use std::{env, fs, io::ErrorKind, process};
+use std::{env, fs, io, process};
 
 fn main() {
-    let input_file_path = parse_cmd_arguments().unwrap_or_else(error_and_abort());
-    
-    let contents = read_file_contents(&input_file_path).unwrap_or_else(error_and_abort());
-
-    println!("{contents}");
+    let input_file_path = parse_cmd_arguments().unwrap_or_else(error_and_exit());
+    let source_code = read_file_contents(&input_file_path).unwrap_or_else(error_and_exit());
+    let interpreter = bf::Interpreter::new();
+    interpreter.execute(&source_code);
 }
 
 fn parse_cmd_arguments() -> Result<String, String> {
@@ -19,12 +18,12 @@ fn parse_cmd_arguments() -> Result<String, String> {
 
 fn read_file_contents(input_file_path: &str) -> Result<String, String> {
     fs::read_to_string(input_file_path).map_err(|error| match error.kind() {
-        ErrorKind::NotFound => format!("no such file: '{input_file_path}'"),
+        io::ErrorKind::NotFound => format!("no such file: '{input_file_path}'"),
         _ => error.to_string()
     })
 }
 
-fn error_and_abort() -> impl FnOnce(String) -> String {
+fn error_and_exit() -> impl FnOnce(String) -> String {
     |err| {
         eprintln!("bf: error: {err}");
         process::exit(1);
