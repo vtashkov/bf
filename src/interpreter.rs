@@ -1,6 +1,8 @@
 mod lexer;
+mod parser;
 
 use lexer::lex;
+use parser::parse;
 
 pub struct Interpreter {}
 
@@ -10,7 +12,9 @@ impl Interpreter {
     }
 
     pub fn execute(&self, source_code: &str) {
-        let _tokens = lex(source_code);
+        let tokens = lex(source_code);
+        let _instructions = parse(&mut tokens.into_iter());
+        dbg!(_instructions);
     }
 }
 
