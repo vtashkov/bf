@@ -1,5 +1,6 @@
 mod lexer;
 mod parser;
+mod memory;
 
 use lexer::lex;
 use parser::parse;
