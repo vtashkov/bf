@@ -15,20 +15,20 @@ pub fn parse(tokens: &mut impl Iterator<Item = Token>) -> Vec<Instruction> {
     let mut instructions: Vec<Instruction> = Vec::new();
 
     while let Some(token) = tokens.next() {
-        match token {
-            Token::NextCell => instructions.push(Instruction::NextCell),
-            Token::PreviousCell => instructions.push(Instruction::PreviousCell),
-            Token::IncrementData => instructions.push(Instruction::IncrementData),
-            Token::DecrementData => instructions.push(Instruction::DecrementData),
-            Token::OutputData => instructions.push(Instruction::OutputData),
-            Token::InputData => instructions.push(Instruction::InputData),
-            Token::BeginLoop => {
-                instructions.push(Instruction::Loop(parse(tokens)));
-            }
+        let instruction = match token {
+            Token::NextCell => Instruction::NextCell,
+            Token::PreviousCell => Instruction::PreviousCell,
+            Token::IncrementData => Instruction::IncrementData,
+            Token::DecrementData => Instruction::DecrementData,
+            Token::OutputData => Instruction::OutputData,
+            Token::InputData => Instruction::InputData,
+            Token::BeginLoop => Instruction::Loop(parse(tokens)),
             Token::EndLoop => {
                 return instructions;
             }
-        }
+        };
+
+        instructions.push(instruction);
     }
 
     instructions
