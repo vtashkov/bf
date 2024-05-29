@@ -29,7 +29,7 @@ The eight language commands each consist of a single character:
 | [ |	If the byte at the data pointer is zero, then instead of moving the instruction pointer forward to the next command, jump it forward to the command after the matching ] command. |
 | ] |	If the byte at the data pointer is nonzero, then instead of moving the instruction pointer forward to the next command, jump it back to the command after the matching [ command. |
 
-[ and ] match as parentheses usually do: each [ matches exactly one ] and vice versa, the [ comes first, and there can be no unmatched [ or ] between the two. 
+~~[ and ] match as parentheses usually do: each [ matches exactly one ] and vice versa, the [ comes first, and there can be no unmatched [ or ] between the two.~~ This rule is removed, see below.
 
 ## Implementation specifics
 
@@ -37,7 +37,7 @@ The eight language commands each consist of a single character:
 - The range of values a single cell is from 0 to 255 (i.e. unsigned integer byte).
 - If a program attempts to either decrement the value of a cell below its documented minimum value or increment the value of a cell beyond its documented maximum value, then the value in the cell after such an operation wraps around.
 - If a program attempts to input a value when there is no more data in the input stream, the value in the current cell is unchanged.
-- If a program contains one or more unbalanced brackets, then the interpreter returns an error and does not execute the program at all.
+- If a program contains one or more unbalanced `[` brackets, then the interpreter will assume that the corresponding `]` closing brackets are at the end (i.e. it will behave as if they were added). If a program contains a `]` closing bracket without corresponding `[` opening bracket, then the interpreter will ignore all instructions after that.
 
 The goal is to minimize the errors that `bf` produces and try to be as forgiving as possible.
 
