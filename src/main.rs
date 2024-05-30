@@ -1,9 +1,11 @@
-use std::{env, fs, io, process};
+use std::{env, fs, io::{self, stdin, stdout}, process};
 
 fn main() {
     let input_file_path = parse_cmd_arguments().unwrap_or_else(error_and_exit());
     let source_code = read_file_contents(&input_file_path).unwrap_or_else(error_and_exit());
-    let interpreter = bf::Interpreter::new();
+    let mut stdin = stdin();
+    let mut stdout = stdout();
+    let mut interpreter = bf::Interpreter::new(&mut stdin, &mut stdout, 30000);
     interpreter.execute(&source_code);
 }
 
