@@ -13,11 +13,18 @@ where
     T: Default + Clone,
     Wrapping<T>: AddAssign<Wrapping<u8>> + SubAssign<Wrapping<u8>>,
 {
+    const ONE: Wrapping<u8> = Wrapping(1);
+
     pub fn new(size: usize) -> Memory<T> {
         Memory {
             cells: vec![Wrapping(T::default()); size],
             current_idx: 0,
         }
+    }
+
+    pub fn clear(&mut self) {
+        for item in &mut self.cells { *item = Wrapping(T::default()); }
+        self.current_idx = 0;
     }
 
     pub fn read(&self) -> &T {
@@ -41,8 +48,6 @@ where
         }
         self.current_idx -= 1;
     }
-
-    const ONE: Wrapping<u8> = Wrapping(1);
 
     pub fn increment(&mut self) {
         self.cells[self.current_idx] += Self::ONE;
@@ -254,5 +259,23 @@ mod tests {
         memory.decrement();
         let cell_value = memory.read();
         assert_eq!(u8::max_value(), *cell_value);
+    }
+
+    #[test]
+    fn memory_can_be_cleared() {
+        let mut memory: Memory<u8> = Memory::new(3);
+        memory.next();
+        memory.write(1);
+        memory.next();
+        memory.write(2);
+        memory.clear();
+        let cell_value = memory.read();
+        assert_eq!(0, *cell_value);
+        memory.next();
+        let cell_value = memory.read();
+        assert_eq!(0, *cell_value);
+        memory.next();
+        let cell_value = memory.read();
+        assert_eq!(0, *cell_value);
     }
 }
