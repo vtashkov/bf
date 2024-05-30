@@ -1,10 +1,8 @@
 mod memory;
-mod parser;
 
 use std::io::{Read, Write};
 
 use memory::Memory;
-use parser::{parse, Instruction};
 
 pub struct Interpreter<'a, R, W>
 where
@@ -62,6 +60,37 @@ where
     }
 }
 
+#[derive(PartialEq, Debug)]
+enum Instruction {
+    NextCell,
+    PreviousCell,
+    IncrementData,
+    DecrementData,
+    OutputData,
+    InputData,
+    Loop(Vec<Instruction>),
+}
+
+fn parse(chars: &mut impl Iterator<Item = char>) -> Vec<Instruction> {
+    let mut instructions: Vec<Instruction> = Vec::new();
+
+    while let Some(char) = chars.next() {
+        instructions.push(match char {
+            '>' => Instruction::NextCell,
+            '<' => Instruction::PreviousCell,
+            '+' => Instruction::IncrementData,
+            '-' => Instruction::DecrementData,
+            '.' => Instruction::OutputData,
+            ',' => Instruction::InputData,
+            '[' => Instruction::Loop(parse(chars)),
+            ']' => break,
+            _ => continue,
+        });
+    }
+
+    instructions
+}
+
 #[cfg(test)]
 mod tests {
     use std::io::Cursor;
@@ -81,6 +110,16 @@ mod tests {
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
         interpreter.execute("");
+    }
+
+    #[test]
+    fn interpreter_ignores_non_instructions() {
+        let mut input = Cursor::new(vec![]);
+        let mut output = vec![];
+        let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
+        interpreter.execute(" !\"#$%&'()*/0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_`abcdefghijklmnopqrstuvwxyz{|}~");
+        let expected: Vec<u8> = vec![];
+        assert_eq!(expected, output)
     }
 
     #[test]
@@ -219,6 +258,15 @@ mod tests {
     }
 
     #[test]
+    fn interpreter_executes_two_embedded_loops() {
+        let mut input = Cursor::new(vec![]);
+        let mut output = vec![];
+        let mut interpreter = Interpreter::new(&mut input, &mut output, 3);
+        interpreter.execute("+[>+[.-]+[.-].<.-].");
+        assert_eq!(vec![1, 1, 0, 1, 0], output)
+    }
+
+    #[test]
     fn interpreter_executes_double_embedded_loops() {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
@@ -234,5 +282,59 @@ mod tests {
         let mut interpreter = Interpreter::new(&mut input, &mut output, 3);
         interpreter.execute(".+.[-.");
         assert_eq!(vec![0, 1, 0], output)
+    }
+
+    #[test]
+    fn interpreter_executes_embedded_no_end_loop() {
+        let mut input = Cursor::new(vec![]);
+        let mut output = vec![];
+        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
+        interpreter.execute("+[>++[.-].<.-");
+        assert_eq!(vec![2, 1, 0, 1], output)
+    }
+
+    #[test]
+    fn interpreter_executes_no_embedded_end_loop() {
+        let mut input = Cursor::new(vec![]);
+        let mut output = vec![];
+        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
+        interpreter.execute("+[>++[.-.<.-].");
+        assert_eq!(vec![2, 1, 1, 0], output)
+    }
+
+    #[test]
+    fn interpreter_executes_embedded_no_end_loops() {
+        let mut input = Cursor::new(vec![]);
+        let mut output = vec![];
+        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
+        interpreter.execute("+[>++[.-.<.-");
+        assert_eq!(vec![2, 1, 1], output)
+    }
+
+    #[test]
+    fn interpreter_executes_two_embedded_no_end_loop() {
+        let mut input = Cursor::new(vec![]);
+        let mut output = vec![];
+        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
+        interpreter.execute("+[>+[.-]+[.-].<.-].");
+        assert_eq!(vec![1, 1, 0, 1, 0], output)
+    }
+
+    #[test]
+    fn interpreter_executes_double_embedded_no_end_loops() {
+        let mut input = Cursor::new(vec![]);
+        let mut output = vec![];
+        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
+        interpreter.execute("+[->++[->+[.-<]]");
+        assert_eq!(vec![1, 1], output)
+    }
+
+    #[test]
+    fn interpreter_executes_only_end_loop() {
+        let mut input = Cursor::new(vec![]);
+        let mut output = vec![];
+        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
+        interpreter.execute(".].");
+        assert_eq!(vec![0], output)
     }
 }

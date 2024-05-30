@@ -35,7 +35,7 @@ The eight language commands each consist of a single character:
 ## Implementation specifics
 
 - If a program attempts to move the pointer below the first array cell, or beyond the last array cell, then pointer will wrap around.
-- The range of values a single cell is from 0 to 255 (i.e. unsigned integer byte).
+- The range of values of a single cell is from 0 to 255 (i.e. unsigned integer byte).
 - If a program attempts to either decrement the value of a cell below its documented minimum value or increment the value of a cell beyond its documented maximum value, then the value in the cell after such an operation wraps around.
 - If a program attempts to input a value when there is no more data in the input stream, the value in the current cell is unchanged.
 - If a program contains one or more unbalanced `[` brackets, then the interpreter will assume that the corresponding `]` closing brackets are at the end (i.e. it will behave as if they were added). If a program contains a `]` closing bracket without corresponding `[` opening bracket, then the interpreter will ignore all instructions after that.
