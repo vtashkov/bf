@@ -1,10 +1,8 @@
-mod lexer;
 mod memory;
 mod parser;
 
 use std::io::{Read, Write};
 
-use lexer::lex;
 use memory::Memory;
 use parser::{parse, Instruction};
 
@@ -33,8 +31,7 @@ where
 
     pub fn execute(&mut self, source_code: &str) {
         self.memory.clear();
-        let tokens = lex(source_code);
-        let instructions = parse(&mut tokens.into_iter());
+        let instructions = parse(&mut source_code.chars());
         self.execute_instructions(&instructions);
     }
 
