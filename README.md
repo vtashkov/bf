@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Build Status](https://github.com/vtashkov/bf/actions/workflows/rust.yml/badge.svg)](https://github.com/vtashkov/bf/actions/workflows/rust.yml)
+[![codecov](https://codecov.io/github/vtashkov/bf/graph/badge.svg?token=MWHQWW4AIB)](https://codecov.io/github/vtashkov/bf)
 
 `bf` is a Brainfuck interpreter. It includes a library crate `bf` that exports most of the functionality,
 and an executable `bf` that provides a command-line interface for executing 
