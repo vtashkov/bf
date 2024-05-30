@@ -15,7 +15,7 @@ pub fn parse(tokens: &mut impl Iterator<Item = Token>) -> Vec<Instruction> {
     let mut instructions: Vec<Instruction> = Vec::new();
 
     while let Some(token) = tokens.next() {
-        let instruction = match token {
+        instructions.push(match token {
             Token::NextCell => Instruction::NextCell,
             Token::PreviousCell => Instruction::PreviousCell,
             Token::IncrementData => Instruction::IncrementData,
@@ -23,12 +23,8 @@ pub fn parse(tokens: &mut impl Iterator<Item = Token>) -> Vec<Instruction> {
             Token::OutputData => Instruction::OutputData,
             Token::InputData => Instruction::InputData,
             Token::BeginLoop => Instruction::Loop(parse(tokens)),
-            Token::EndLoop => {
-                return instructions;
-            }
-        };
-
-        instructions.push(instruction);
+            Token::EndLoop => break,
+        })
     }
 
     instructions
@@ -287,10 +283,7 @@ mod tests {
     #[test]
     fn parse_only_end_loop_instruction() {
         let tokens = tokens(".+]-");
-        let expected = vec![
-            Instruction::OutputData,
-            Instruction::IncrementData,
-        ];
+        let expected = vec![Instruction::OutputData, Instruction::IncrementData];
         let instructions = parse(&mut tokens.into_iter());
         assert_eq!(expected, instructions);
     }
