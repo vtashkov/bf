@@ -114,6 +114,15 @@ mod tests {
     }
 
     #[test]
+    fn interpreter_does_not_change_anything_if_no_input_value() {
+        let mut input = Cursor::new(vec![]);
+        let mut output = vec![];
+        let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
+        interpreter.execute(",.");
+        assert_eq!(vec![0], output)
+    }
+
+    #[test]
     fn interpreter_increments_cell() {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];

@@ -51,6 +51,14 @@ mod tests {
     }
 
     #[test]
+    fn parse_non_instruction() {
+        let tokens = tokens(" ");
+        let expected: Vec<Instruction> = vec![];
+        let instructions = parse(&mut tokens.into_iter());
+        assert_eq!(expected, instructions);
+    }
+
+    #[test]
     fn parse_next_cell_instruction() {
         let tokens = tokens(">");
         let expected = vec![Instruction::NextCell];
