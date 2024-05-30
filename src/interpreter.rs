@@ -1,8 +1,6 @@
-mod memory;
-
 use std::io::{Read, Write};
 
-use memory::Memory;
+use crate::memory::Memory;
 
 pub struct Interpreter<'a, R, W>
 where
