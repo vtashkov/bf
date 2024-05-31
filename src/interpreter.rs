@@ -18,6 +18,7 @@
 //! assert_eq!("Hello World!\n", str::from_utf8(output.as_slice()).unwrap());
 //! ```
 //!
+
 use std::io::{Read, Write};
 
 use crate::memory::Memory;
