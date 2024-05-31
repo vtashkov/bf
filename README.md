@@ -72,6 +72,7 @@ let mut input = Cursor::new(vec![]);
 let mut output = vec![];
 let mut interpreter = Interpreter::new(&mut input, &mut output, 30000);
 interpreter.execute(&source_code);
+assert_eq!("Hello World!\n", str::from_utf8(output.as_slice()).unwrap());
 ```
 
 
