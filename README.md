@@ -60,7 +60,8 @@ Options:
 ## Library usage
 
 This will output "Hello World!\n" in the output vector:
-`
+
+```
 use std::io::Cursor;
 use std::str;
 
@@ -71,7 +72,7 @@ let mut input = Cursor::new(vec![]);
 let mut output = vec![];
 let mut interpreter = Interpreter::new(&mut input, &mut output, 30000);
 interpreter.execute(&source_code);
-`
+```
 
 
 ## Examples
