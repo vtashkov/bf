@@ -6,26 +6,24 @@ use std::{
     io::{self, Read, Write},
 };
 
+use clap::Parser;
 pub use interpreter::Interpreter;
 
-pub fn run_cmd(
-    args: Vec<String>,
-    stdin: &mut impl Read,
-    stdout: &mut impl Write,
-) -> Result<(), String> {
-    let input_file_path = parse_cmd_arguments(args)?;
-    let source_code = read_file_contents(&input_file_path)?;
-    let mut interpreter = Interpreter::new(stdin, stdout, 30000);
-    interpreter.execute(&source_code);
-    Ok(())
+#[derive(Parser, Debug)]
+#[command(author, version, about)]
+pub struct Args {
+    #[arg()]
+    input_file: String,
+
+    #[arg(short, long, default_value_t = 30000)]
+    memory_size: usize,
 }
 
-fn parse_cmd_arguments(args: Vec<String>) -> Result<String, String> {
-    if args.len() < 2 {
-        return Err(String::from("no input file"));
-    }
-    let input_file_path = args[1].clone();
-    Ok(input_file_path)
+pub fn run_cmd(args: Args, stdin: &mut impl Read, stdout: &mut impl Write) -> Result<(), String> {
+    let source_code = read_file_contents(&args.input_file)?;
+    let mut interpreter = Interpreter::new(stdin, stdout, args.memory_size);
+    interpreter.execute(&source_code);
+    Ok(())
 }
 
 fn read_file_contents(input_file_path: &str) -> Result<String, String> {
@@ -44,38 +42,16 @@ mod tests {
 
     #[test]
     fn run_cmd_can_be_invoked() {
-        let args = vec![];
+        let args = Args { input_file: String::from(""), memory_size: 1 };
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let _ = run_cmd(args, &mut input, &mut output);
     }
 
     #[test]
-    fn run_cmd_with_no_args_returns_error() {
-        let args = vec![];
-        let mut input = Cursor::new(vec![]);
-        let mut output = vec![];
-        let result = run_cmd(args, &mut input, &mut output);
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn run_cmd_with_less_than_two_args_returns_no_input_file() {
-        let args = vec![];
-        let mut input = Cursor::new(vec![]);
-        let mut output = vec![];
-        let result = run_cmd(args, &mut input, &mut output);
-        assert!(result.is_err());
-        assert_eq!("no input file", result.err().unwrap())
-    }
-
-    #[test]
     fn run_cmd_with_wrong_input_file_returns_no_such_file() {
         let invalid_file_name = "./examples/invalid.bf";
-        let args = vec![
-            String::from("bf"),
-            String::from(invalid_file_name),
-        ];
+        let args = Args { input_file: String::from(invalid_file_name), memory_size: 1 };
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let result = run_cmd(args, &mut input, &mut output);
@@ -86,10 +62,7 @@ mod tests {
 
     #[test]
     fn run_cmd_can_execute_hello_world() {
-        let args = vec![
-            String::from("bf"),
-            String::from("./examples/hello_world.bf"),
-        ];
+        let args = Args { input_file: String::from("./examples/hello_world.bf"), memory_size: 30000 };
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let result = run_cmd(args, &mut input, &mut output);
