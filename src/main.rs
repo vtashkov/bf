@@ -8,7 +8,7 @@ use vtashkov_bf::{run_cmd, Args};
 
 fn main() {
     run_cmd(Args::parse(), &mut stdin(), &mut stdout()).unwrap_or_else(|err| {
-        eprintln!("bf: error: {err}");
+        eprintln!("vtashkov-bf: error: {err}");
         process::exit(1);
     });
 }
