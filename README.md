@@ -46,13 +46,15 @@ The goal is to minimize the errors that `bf` produces and try to be as forgiving
 ## Command line usage
 
 ```
+Brainfuck interpreter
+
 Usage: bf [OPTIONS] <INPUT_FILE>
 
 Arguments:
-  <INPUT_FILE>  
+  <INPUT_FILE>  Path to the file to be interpreted
 
 Options:
-  -m, --memory-size <MEMORY_SIZE>  [default: 30000]
+  -m, --memory-size <MEMORY_SIZE>  Number of the cells in the memory, defaults to 30 000 [default: 30000]
   -h, --help                       Print help
   -V, --version                    Print version
 ```
