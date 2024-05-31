@@ -43,6 +43,37 @@ The eight language commands each consist of a single character:
 
 The goal is to minimize the errors that `bf` produces and try to be as forgiving as possible.
 
+## Command line usage
+
+```
+Usage: bf [OPTIONS] <INPUT_FILE>
+
+Arguments:
+  <INPUT_FILE>  
+
+Options:
+  -m, --memory-size <MEMORY_SIZE>  [default: 30000]
+  -h, --help                       Print help
+  -V, --version                    Print version
+```
+
+## Library usage
+
+This will output "Hello World!\n" in the output vector:
+`
+use std::io::Cursor;
+use std::str;
+
+use bf::Interpreter;
+
+let source_code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
+let mut input = Cursor::new(vec![]);
+let mut output = vec![];
+let mut interpreter = Interpreter::new(&mut input, &mut output, 30000);
+interpreter.execute(&source_code);
+`
+
+
 ## Examples
 
 Example programs in Brainfuck language can be found in [/examples](https://github.com/vtashkov/bf/tree/master/examples) directory.
