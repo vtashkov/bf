@@ -3,6 +3,7 @@ use std::{
     ops::{AddAssign, SubAssign},
 };
 
+/// Memory tape, as need for the Brainfuck interpreter
 pub struct Memory<T> {
     cells: Vec<Wrapping<T>>,
     current_idx: usize,
@@ -15,6 +16,7 @@ where
 {
     const ONE: Wrapping<u8> = Wrapping(1);
 
+    /// Creates new Memory tape with a given size
     pub fn new(size: usize) -> Memory<T> {
         Memory {
             cells: vec![Wrapping(T::default()); size],
@@ -22,19 +24,24 @@ where
         }
     }
 
+    /// Clears all the memory cells, but doesn't change their number
     pub fn clear(&mut self) {
         for item in &mut self.cells { *item = Wrapping(T::default()); }
         self.current_idx = 0;
     }
 
+    /// Reads the value of the current memory cell
     pub fn read(&self) -> &T {
         &self.cells[self.current_idx].0
     }
 
+    /// Writes a value to the current memory cell
     pub fn write(&mut self, value: T) {
         self.cells[self.current_idx] = Wrapping(value);
     }
 
+    /// Moves the pointer to he next memory cell
+    /// If it is the end of the tape, goes back to the beginning
     pub fn next(&mut self) {
         self.current_idx += 1;
         if self.current_idx == self.cells.len() {
@@ -42,6 +49,8 @@ where
         }
     }
 
+    /// Moves the pointer the previous memory cell
+    /// If it is the beginning of the tape, goes to the last memory cell
     pub fn previous(&mut self) {
         if self.current_idx == 0 {
             self.current_idx = self.cells.len();
@@ -49,10 +58,14 @@ where
         self.current_idx -= 1;
     }
 
+    /// Increments the value of the current memory cell by 1
+    /// If the current memory cell holds the maximum value, it wraps around
     pub fn increment(&mut self) {
         self.cells[self.current_idx] += Self::ONE;
     }
 
+    /// Decrements the value of the current memory cell by 1
+    /// If the current memory cell holds the minimum value, it wraps around
     pub fn decrement(&mut self) {
         self.cells[self.current_idx] -= Self::ONE;
     }

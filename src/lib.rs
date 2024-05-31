@@ -1,4 +1,28 @@
+//! Brainfuck interpreter
+//!
+//! # Examples
+//!
+//! This will output "Hello World!\n" in the output vector:
+//!
+//! ```
+//! use std::io::Cursor;
+//! use std::str;
+
+//! use bf::Interpreter;
+
+//! let source_code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
+//! let mut input = Cursor::new(vec![]);
+//! let mut output = vec![];
+//! let mut interpreter = Interpreter::new(&mut input, &mut output, 30000);
+//! interpreter.execute(&source_code);
+//! assert_eq!("Hello World!\n", str::from_utf8(output.as_slice()).unwrap());
+//! ```
+//!
+
+/// The Brainfuck interpreter
 mod interpreter;
+
+/// Memory cells for the interpreter (memory tape)
 mod memory;
 
 use std::{
@@ -7,21 +31,29 @@ use std::{
 };
 
 use clap::Parser;
+
+// re-exports
 pub use interpreter::Interpreter;
 
+/// Command-line arguments for the interpreter
+/// input_file - the path to the file to be interpreted
+/// memory_size - the number of the cells in the memory, defaults to 30 000
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 pub struct Args {
+    /// Path to the file to be interpreted
     #[arg()]
     input_file: String,
 
+    /// Number of the cells in the memory, defaults to 30 000
     #[arg(short, long, default_value_t = 30000)]
     memory_size: usize,
 }
 
-pub fn run_cmd(args: Args, stdin: &mut impl Read, stdout: &mut impl Write) -> Result<(), String> {
+/// Runs the interpreter using the arguments passed - file to read the source from and memory size
+pub fn run_cmd(args: Args, input: &mut impl Read, output: &mut impl Write) -> Result<(), String> {
     let source_code = read_file_contents(&args.input_file)?;
-    let mut interpreter = Interpreter::new(stdin, stdout, args.memory_size);
+    let mut interpreter = Interpreter::new(input, output, args.memory_size);
     interpreter.execute(&source_code);
     Ok(())
 }
@@ -42,7 +74,10 @@ mod tests {
 
     #[test]
     fn run_cmd_can_be_invoked() {
-        let args = Args { input_file: String::from(""), memory_size: 1 };
+        let args = Args {
+            input_file: String::from(""),
+            memory_size: 1,
+        };
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let _ = run_cmd(args, &mut input, &mut output);
@@ -51,7 +86,10 @@ mod tests {
     #[test]
     fn run_cmd_with_wrong_input_file_returns_no_such_file() {
         let invalid_file_name = "./examples/invalid.bf";
-        let args = Args { input_file: String::from(invalid_file_name), memory_size: 1 };
+        let args = Args {
+            input_file: String::from(invalid_file_name),
+            memory_size: 1,
+        };
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let result = run_cmd(args, &mut input, &mut output);
@@ -62,7 +100,10 @@ mod tests {
 
     #[test]
     fn run_cmd_can_execute_hello_world() {
-        let args = Args { input_file: String::from("./examples/hello_world.bf"), memory_size: 30000 };
+        let args = Args {
+            input_file: String::from("./examples/hello_world.bf"),
+            memory_size: 30000,
+        };
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let result = run_cmd(args, &mut input, &mut output);

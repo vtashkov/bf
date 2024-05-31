@@ -1,7 +1,28 @@
+//! Brainfuck interpreter
+//!
+//! # Examples
+//!
+//! This will output "Hello World!\n" in the output vector:
+//!
+//! ```
+//! use std::io::Cursor;
+//! use std::str;
+
+//! use bf::Interpreter;
+
+//! let source_code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
+//! let mut input = Cursor::new(vec![]);
+//! let mut output = vec![];
+//! let mut interpreter = Interpreter::new(&mut input, &mut output, 30000);
+//! interpreter.execute(&source_code);
+//! assert_eq!("Hello World!\n", str::from_utf8(output.as_slice()).unwrap());
+//! ```
+//!
 use std::io::{Read, Write};
 
 use crate::memory::Memory;
 
+/// Brainfuck interpreter
 pub struct Interpreter<'a, R, W>
 where
     R: Read,
@@ -17,6 +38,7 @@ where
     R: Read,
     W: Write,
 {
+    /// Creates new interpreter with the given input stream, output stream and number of cells
     pub fn new(input: &'a mut R, output: &'a mut W, memory_size: usize) -> Interpreter<'a, R, W> {
         Interpreter {
             memory: Memory::new(memory_size),
@@ -25,6 +47,7 @@ where
         }
     }
 
+    /// Executes a program
     pub fn execute(&mut self, source_code: &str) {
         self.memory.clear();
         let instructions = parse(&mut source_code.chars());
