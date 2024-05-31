@@ -8,7 +8,7 @@
 //! use std::io::Cursor;
 //! use std::str;
 
-//! use bf::Interpreter;
+//! use vtashkov_bf::Interpreter;
 
 //! let source_code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
 //! let mut input = Cursor::new(vec![]);

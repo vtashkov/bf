@@ -1,7 +1,7 @@
 use std::io::Cursor;
 use std::str;
 
-use bf::Interpreter;
+use vtashkov_bf::Interpreter;
 
 #[test]
 fn it_can_execute_hello_world() {
