@@ -146,7 +146,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_inbetween_simple_loop_instruction() {
+    fn parse_in_between_simple_loop_instruction() {
         let source_code = ".[+]-";
         let loop_instructions = vec![Instruction::IncrementData];
         let expected = vec![
@@ -211,7 +211,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_inbetween_no_end_loop_instruction() {
+    fn parse_in_between_no_end_loop_instruction() {
         let source_code = ".[+-";
         let loop_instructions = vec![Instruction::IncrementData, Instruction::DecrementData];
         let expected = vec![

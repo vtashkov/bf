@@ -40,7 +40,7 @@ where
         self.cells[self.current_idx] = Wrapping(value);
     }
 
-    /// Moves the pointer to he next memory cell
+    /// Moves the pointer to the next memory cell
     /// If it is the end of the tape, goes back to the beginning
     pub fn next(&mut self) {
         self.current_idx += 1;
@@ -168,7 +168,7 @@ mod tests {
     }
 
     #[test]
-    fn memory_cells_go_from_the_begining_after_next_on_the_last_cell() {
+    fn memory_cells_go_from_the_beginning_after_next_on_the_last_cell() {
         let mut memory: Memory<u8> = Memory::new(3);
         memory.next();
         memory.write(1);
@@ -232,7 +232,7 @@ mod tests {
     #[test]
     fn memory_cell_is_wrapping_after_incrementing_the_max_value() {
         let mut memory: Memory<u8> = Memory::new(1);
-        memory.write(u8::max_value());
+        memory.write(u8::MAX);
         memory.increment();
         let cell_value = memory.read();
         assert_eq!(0, *cell_value);
@@ -271,7 +271,7 @@ mod tests {
         assert_eq!(0, *cell_value);
         memory.decrement();
         let cell_value = memory.read();
-        assert_eq!(u8::max_value(), *cell_value);
+        assert_eq!(u8::MAX, *cell_value);
     }
 
     #[test]
