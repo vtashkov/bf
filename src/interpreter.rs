@@ -7,14 +7,16 @@
 //! ```
 //! use std::io::Cursor;
 //! use std::str;
-
+//! 
 //! use vtashkov_bf::Interpreter;
-
-//! let source_code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
+//! use vtashkov_bf::Program;
+//! 
 //! let mut input = Cursor::new(vec![]);
 //! let mut output = vec![];
 //! let mut interpreter = Interpreter::new(&mut input, &mut output, 30000);
-//! interpreter.execute(&source_code);
+//! let source_code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
+//! let program = Program::parse(source_code);
+//! interpreter.execute(program);
 //! assert_eq!("Hello World!\n", str::from_utf8(output.as_slice()).unwrap());
 //! ```
 //!
@@ -22,6 +24,7 @@
 use std::io::{Read, Write};
 
 use crate::memory::Memory;
+use crate::program::{Instruction, Program};
 
 /// Brainfuck interpreter
 pub struct Interpreter<'a, R, W>
@@ -49,10 +52,9 @@ where
     }
 
     /// Executes a program
-    pub fn execute(&mut self, source_code: &str) {
+    pub fn execute(&mut self, program: Program) {
         self.memory.clear();
-        let instructions = parse(&mut source_code.chars());
-        self.execute_instructions(&instructions);
+        self.execute_instructions(&program.instructions);
     }
 
     fn execute_instructions(&mut self, instructions: &Vec<Instruction>) {
@@ -82,37 +84,6 @@ where
     }
 }
 
-#[derive(PartialEq, Debug)]
-enum Instruction {
-    NextCell,
-    PreviousCell,
-    IncrementData,
-    DecrementData,
-    OutputData,
-    InputData,
-    Loop(Vec<Instruction>),
-}
-
-fn parse(chars: &mut impl Iterator<Item = char>) -> Vec<Instruction> {
-    let mut instructions: Vec<Instruction> = Vec::new();
-
-    while let Some(char) = chars.next() {
-        instructions.push(match char {
-            '>' => Instruction::NextCell,
-            '<' => Instruction::PreviousCell,
-            '+' => Instruction::IncrementData,
-            '-' => Instruction::DecrementData,
-            '.' => Instruction::OutputData,
-            ',' => Instruction::InputData,
-            '[' => Instruction::Loop(parse(chars)),
-            ']' => break,
-            _ => continue,
-        });
-    }
-
-    instructions
-}
-
 #[cfg(test)]
 mod tests {
     use std::io::Cursor;
@@ -131,17 +102,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute("");
-    }
-
-    #[test]
-    fn interpreter_ignores_non_instructions() {
-        let mut input = Cursor::new(vec![]);
-        let mut output = vec![];
-        let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute(" !\"#$%&'()*/0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_`abcdefghijklmnopqrstuvwxyz{|}~");
-        let expected: Vec<u8> = vec![];
-        assert_eq!(expected, output)
+        let source_code = "";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
     }
 
     #[test]
@@ -149,7 +112,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute(".");
+        let source_code = ".";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![0], output)
     }
 
@@ -158,7 +123,9 @@ mod tests {
         let mut input = Cursor::new(vec![1]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute(",.");
+        let source_code = ",.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![1], output)
     }
 
@@ -167,7 +134,9 @@ mod tests {
         let mut input = Cursor::new(vec![1, 2]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute(".,.,.");
+        let source_code = ".,.,.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![0, 1, 2], output)
     }
 
@@ -176,7 +145,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute(",.");
+        let source_code = ",.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![0], output)
     }
 
@@ -185,7 +156,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute("+.");
+        let source_code = "+.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![1], output)
     }
 
@@ -194,7 +167,9 @@ mod tests {
         let mut input = Cursor::new(vec![2]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute(",.-.");
+        let source_code = ",.-.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![2, 1], output)
     }
 
@@ -203,7 +178,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute(".+.+.+.-.-.-.");
+        let source_code = ".+.+.+.-.-.-.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![0, 1, 2, 3, 2, 1, 0], output)
     }
 
@@ -212,7 +189,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
-        interpreter.execute(".+.>.");
+        let source_code = ".+.>.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![0, 1, 0], output)
     }
 
@@ -221,7 +200,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
-        interpreter.execute(".+.>.+.+.<.-.>.");
+        let source_code = ".+.>.+.+.<.-.>.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![0, 1, 0, 1, 2, 1, 0, 2], output)
     }
 
@@ -230,7 +211,9 @@ mod tests {
         let mut input = Cursor::new(vec![1, 2, 3]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 3);
-        interpreter.execute(",>,>,>.>.>.");
+        let source_code = ",>,>,>.>.>.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![1, 2, 3], output)
     }
 
@@ -239,7 +222,9 @@ mod tests {
         let mut input = Cursor::new(vec![1, 2, 3]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 3);
-        interpreter.execute(",>,>,><.<.<.");
+        let source_code = ",>,>,><.<.<.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![3, 2, 1], output)
     }
 
@@ -248,7 +233,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute(".[.].");
+        let source_code = ".[.].";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![0, 0], output)
     }
 
@@ -257,7 +244,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute(".+[.-].");
+        let source_code = ".+[.-].";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![0, 1, 0], output)
     }
 
@@ -266,7 +255,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 1);
-        interpreter.execute(".++[.-].");
+        let source_code = ".++[.-].";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![0, 2, 1, 0], output)
     }
 
@@ -275,17 +266,10 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
-        interpreter.execute("+[>++[.-].<.-].");
+        let source_code = "+[>++[.-].<.-].";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![2, 1, 0, 1, 0], output)
-    }
-
-    #[test]
-    fn interpreter_executes_two_embedded_loops() {
-        let mut input = Cursor::new(vec![]);
-        let mut output = vec![];
-        let mut interpreter = Interpreter::new(&mut input, &mut output, 3);
-        interpreter.execute("+[>+[.-]+[.-].<.-].");
-        assert_eq!(vec![1, 1, 0, 1, 0], output)
     }
 
     #[test]
@@ -293,7 +277,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 3);
-        interpreter.execute("+[->++[->+[.-]<]]");
+        let source_code = "+[->++[->+[.-]<]]";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![1, 1], output)
     }
 
@@ -302,61 +288,9 @@ mod tests {
         let mut input = Cursor::new(vec![]);
         let mut output = vec![];
         let mut interpreter = Interpreter::new(&mut input, &mut output, 3);
-        interpreter.execute(".+.[-.");
+        let source_code = ".+.[-.";
+        let program = Program::parse(source_code);
+        interpreter.execute(program);
         assert_eq!(vec![0, 1, 0], output)
-    }
-
-    #[test]
-    fn interpreter_executes_embedded_no_end_loop() {
-        let mut input = Cursor::new(vec![]);
-        let mut output = vec![];
-        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
-        interpreter.execute("+[>++[.-].<.-");
-        assert_eq!(vec![2, 1, 0, 1], output)
-    }
-
-    #[test]
-    fn interpreter_executes_no_embedded_end_loop() {
-        let mut input = Cursor::new(vec![]);
-        let mut output = vec![];
-        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
-        interpreter.execute("+[>++[.-.<.-].");
-        assert_eq!(vec![2, 1, 1, 0], output)
-    }
-
-    #[test]
-    fn interpreter_executes_embedded_no_end_loops() {
-        let mut input = Cursor::new(vec![]);
-        let mut output = vec![];
-        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
-        interpreter.execute("+[>++[.-.<.-");
-        assert_eq!(vec![2, 1, 1], output)
-    }
-
-    #[test]
-    fn interpreter_executes_two_embedded_no_end_loop() {
-        let mut input = Cursor::new(vec![]);
-        let mut output = vec![];
-        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
-        interpreter.execute("+[>+[.-]+[.-].<.-].");
-        assert_eq!(vec![1, 1, 0, 1, 0], output)
-    }
-
-    #[test]
-    fn interpreter_executes_double_embedded_no_end_loops() {
-        let mut input = Cursor::new(vec![]);
-        let mut output = vec![];
-        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
-        interpreter.execute("+[->++[->+[.-<]]");
-        assert_eq!(vec![1, 1], output)
-    }
-
-    #[test]
-    fn interpreter_executes_only_end_loop() {
-        let mut input = Cursor::new(vec![]);
-        let mut output = vec![];
-        let mut interpreter = Interpreter::new(&mut input, &mut output, 2);
-        interpreter.execute(".].");
-        assert_eq!(vec![0], output)
     }
 }
